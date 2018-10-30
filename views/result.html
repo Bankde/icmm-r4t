@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Team result</h1>
+{% if success %}
+  <h2>Hello Team {{ teamName }}!</h2>
+  <h3>User1: {{ user1 }}</h3>
+  <h3>User2: {{ user2 }}</h3>
+  <h3>User3: {{ user3 }}</h3>
+  <h3>User4: {{ user4 }}</h3>
+{% else %}
+  <h2>Failed to create team {{ teamName }}</h2>
+  <p>Reason: {{ reason }}</p>
+{% endif %}
+{% endblock %}

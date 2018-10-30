@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+<title>Confrim Team Member</title>
+<form action="/result" method="post">
+    Team Name: <input type="text" name="teamName" value="{{ teamName }}" readonly><br>
+    User1: <input type="text" name="user1" value="{{ user1 }}" readonly><br>
+    User2: <input type="text" name="user2" value="{{ user2 }}" readonly><br>
+    User3: <input type="text" name="user3" value="{{ user3 }}" readonly><br>
+    User4: <input type="text" name="user4" value="{{ user4 }}" readonly><br>
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}

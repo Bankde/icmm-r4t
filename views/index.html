@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Create Team</h1>
+<form action="/confirm" method="post">
+    Team Name: <input type="text" name="teamName"><br>
+    User1: <input type="text" name="user1"><br>
+    User2: <input type="text" name="user2"><br>
+    User3: <input type="text" name="user3"><br>
+    User4: <input type="text" name="user4"><br>
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}
