@@ -2,11 +2,11 @@
 {% block body %}
 <h1>Team result</h1>
 {% if success %}
-  <h2>Hello Team {{ teamName }}!</h2>
-  <h3>User1: {{ user1 }}</h3>
-  <h3>User2: {{ user2 }}</h3>
-  <h3>User3: {{ user3 }}</h3>
-  <h3>User4: {{ user4 }}</h3>
+  <h2>Team {{ teamName }} is created!</h2>
+  <p>Member1: {{ user1 }}</p>
+  <p>Member2: {{ user2 }}</p>
+  <p>Member3: {{ user3 }}</p>
+  <p>Member4: {{ user4 }}</p>
 {% else %}
   <h2>Failed to create team {{ teamName }}</h2>
   <p>Reason: {{ reason }}</p>

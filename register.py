@@ -2,7 +2,11 @@ from flask import Flask, render_template, request
 import os
 
 template_dir = os.path.abspath("./views")
-app = Flask(__name__,  template_folder=template_dir)
+app = Flask(__name__,  template_folder=template_dir, static_url_path="/static")
+
+@app.route("/static/<path:path>")
+def send_js(path):
+    return send_from_directory("./static", path)
 
 @app.route("/")
 def index_get():
