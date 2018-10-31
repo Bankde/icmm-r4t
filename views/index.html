@@ -2,13 +2,17 @@
 {% block body %}
 <h1>Create Team</h1>
 <form action="/confirm" method="post">
-    Team Name: <input type="text" class="form-control" name="teamName" placeholder="Your team's name" id="teamName" required><br>
+    Team Name: <input type="text" class="form-control" name="teamName" placeholder="Your team's name" id="teamName" required>
+    <label for="teamName" >Status
+        <span class="text-muted" id="teamStatus"></span>
+    </label>
+    <br>
     
     Member1: <input type="text" class="form-control" name="user1" placeholder="member1 name" id="user1Name" required>
     <label for="user1Name" >Status
             <span class="text-muted" id="user1Status"></span>
-        </label>
-        <br>
+    </label>
+    <br>
 
     Member2: <input type="text" class="form-control" name="user2" placeholder="member2 name" id="user2Name" required>
     <label for="user2Name" >Status
@@ -19,47 +23,69 @@
     Member3: <input type="text" class="form-control" name="user3" placeholder="member3 name" id="user3Name" required>
     <label for="user3Name" >Status
             <span class="text-muted" id="user3Status"></span>
-        </label>
-        <br>
+    </label>
+    <br>
 
     Member4: <input type="text" class="form-control" name="user4" placeholder="member4 name" id="user4Name" required>
     <label for="user4Name" >Status
             <span class="text-muted" id="user4Status"></span>
-        </label>
-        <br>
-    
+    </label>
+    <br>
+
+    <label>Result
+        <span class="text-muted" id="checkResult"></span>
+     </label>
+
     <button type="button" id="checkButton">Check</button>
-    <button type="submit" value="Submit">Submit</button>
+    <button type="submit"id="submitButton" value="Submit" disabled>Submit</button>
     <button type="reset" value="Reset">Reset</button>
 </form>
 
 <script>
     $(document).ready(function(){
-        $("#user1Name").focusout(function(){
-            $("#user1Status" ).text("Updated!");
-        });
-        $("#user2Name").focusout(function(){
-            $("#user2Status" ).text("Updated!");
-        });
-        $("#user3Name").focusout(function(){
-            $("#user3Status" ).text("Updated!");
-        });
-        $("#user4Name").focusout(function(){
-            $("#user4Status" ).text("Updated!");
-        });
+        var updateStatus = function(teamStatus, user1Status, user2Status, user3Status, user4Status){
+            $("#teamStatus").text(teamStatus);
+            $("#user1Status").text(user1Status);
+            $("#user2Status").text(user2Status);
+            $("#user3Status").text(user3Status);
+            $("#user4Status").text(user4Status);
+        };
 
+        $("input").change(function(){
+            // If any input is changed, disable the submit button.
+            $(':input[type="submit"]').prop('disabled', true);
+        })
         $("#checkButton").click(function(){
+            var teamName = $("#teamName").val()
             var user1Name = $("#user1Name").val();
-            console.log("Checking " + user1Name);
-            data = {"user1": user1Name}
+            var user2Name = $("#user2Name").val();
+            var user3Name = $("#user3Name").val();
+            var user4Name = $("#user4Name").val();
+
+            data = {
+                "teamName": teamName,
+                "user1": user1Name,
+                "user2": user2Name,
+                "user3": user3Name,
+                "user4": user4Name
+            }
             $.ajax({
                 type: "POST",
                 dataType: "json",
                 contentType: "application/json",
                 url: "/api/check",
                 data: JSON.stringify(data),
-                success: function(response){
-                    alert(response.result);
+                success: function(res){
+                    if(res.success){
+                        // Enable submit button.
+                        $(':input[type="submit"]').prop('disabled', false);
+                        $("#checkResult").text("Okay");
+                        updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
+                    }else{
+                        alert("Team is not valid!");
+                        $("#checkResult").text("Not valid");
+                        updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
+                    }
                 }
             });
         });

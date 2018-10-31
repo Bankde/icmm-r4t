@@ -45,16 +45,32 @@ def result_post():
 
 @app.route("/api/check", methods=["POST"])
 def api_check_post():
-    print("Header:", request.headers["Content-Type"])
-    req_data = json.dumps(request.json)
-    print(request.data)
-    print(request.json)
+    req_data = request.json
+    team_name = req_data["teamName"]
+    user1 = req_data["user1"]
+    user2 = req_data["user2"]
+    user3 = req_data["user3"]
+    user4 = req_data["user4"]
 
-    data = {
-        "hello"  : "world",
-        "number" : 3,
-        "result" : "OK"
-    }
+    print("Team name:", team_name)
+    if "fail" in team_name:
+        data = {
+            "success" : False,
+            "teamName" : "Duplicate",
+            "member1" : "Not Found",
+            "member2" : "Registered",
+            "member3" : "10K",
+            "member4" : "NO10K"
+        }
+    else:
+        data = {
+            "success" : True,
+            "teamName" : "Ok",
+            "member1" : "10K",
+            "member2" : "10K",
+            "member3" : "NO10K",
+            "member4" : "NO10K"
+        }
     resp = jsonify(data)
     return resp
     

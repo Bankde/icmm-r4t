@@ -2,11 +2,11 @@
 {% block body %}
 <h1>Confrim your team members</h1>
 <form action="/result" method="post">
-    Team Name: <input type="text" name="teamName" value="{{ teamName }}" readonly><br>
-    Member1: <input type="text" name="user1" value="{{ user1 }}" readonly><br>
-    Member2: <input type="text" name="user2" value="{{ user2 }}" readonly><br>
-    Member3: <input type="text" name="user3" value="{{ user3 }}" readonly><br>
-    Member4: <input type="text" name="user4" value="{{ user4 }}" readonly><br>
-    <input type="submit" value="Confirm">
+    Team Name: <input type="text" class="form-control" name="teamName" value="{{ teamName }}" readonly><br>
+    Member1: <input type="text" class="form-control" name="user1" value="{{ user1 }}" readonly><br>
+    Member2: <input type="text" class="form-control" name="user2" value="{{ user2 }}" readonly><br>
+    Member3: <input type="text" class="form-control" name="user3" value="{{ user3 }}" readonly><br>
+    Member4: <input type="text" class="form-control" name="user4" value="{{ user4 }}" readonly><br>
+    <button type="submit" value="Confirm">Confirm</button>
 </form>
 {% endblock %}
