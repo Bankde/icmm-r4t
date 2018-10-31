@@ -2,11 +2,67 @@
 {% block body %}
 <h1>Create Team</h1>
 <form action="/confirm" method="post">
-    Team Name: <input type="text" name="teamName" placeholder="Your team's name"><br>
-    Member1: <input type="text" name="user1" placeholder="member1 name"><br>
-    Member2: <input type="text" name="user2" placeholder="member2 name"><br>
-    Member3: <input type="text" name="user3" placeholder="member3 name"><br>
-    Member4: <input type="text" name="user4" placeholder="member4 name"><br>
-    <input type="submit" value="Submit">
+    Team Name: <input type="text" class="form-control" name="teamName" placeholder="Your team's name" id="teamName" required><br>
+    
+    Member1: <input type="text" class="form-control" name="user1" placeholder="member1 name" id="user1Name" required>
+    <label for="user1Name" >Status
+            <span class="text-muted" id="user1Status"></span>
+        </label>
+        <br>
+
+    Member2: <input type="text" class="form-control" name="user2" placeholder="member2 name" id="user2Name" required>
+    <label for="user2Name" >Status
+        <span class="text-muted" id="user2Status"></span>
+    </label>
+    <br>
+
+    Member3: <input type="text" class="form-control" name="user3" placeholder="member3 name" id="user3Name" required>
+    <label for="user3Name" >Status
+            <span class="text-muted" id="user3Status"></span>
+        </label>
+        <br>
+
+    Member4: <input type="text" class="form-control" name="user4" placeholder="member4 name" id="user4Name" required>
+    <label for="user4Name" >Status
+            <span class="text-muted" id="user4Status"></span>
+        </label>
+        <br>
+    
+    <button type="button" id="checkButton">Check</button>
+    <button type="submit" value="Submit">Submit</button>
+    <button type="reset" value="Reset">Reset</button>
 </form>
+
+<script>
+    $(document).ready(function(){
+        $("#user1Name").focusout(function(){
+            $("#user1Status" ).text("Updated!");
+        });
+        $("#user2Name").focusout(function(){
+            $("#user2Status" ).text("Updated!");
+        });
+        $("#user3Name").focusout(function(){
+            $("#user3Status" ).text("Updated!");
+        });
+        $("#user4Name").focusout(function(){
+            $("#user4Status" ).text("Updated!");
+        });
+
+        $("#checkButton").click(function(){
+            var user1Name = $("#user1Name").val();
+            console.log("Checking " + user1Name);
+            data = {"user1": user1Name}
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                url: "/api/check",
+                data: JSON.stringify(data),
+                success: function(response){
+                    alert(response.result);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

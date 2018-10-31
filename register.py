@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, json
 import os
 
 template_dir = os.path.abspath("./views")
 app = Flask(__name__,  template_folder=template_dir, static_url_path="/static")
+# Auto reload if a template file is changed
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 @app.route("/static/<path:path>")
 def send_js(path):
@@ -40,6 +42,22 @@ def result_post():
     else:
         reason = "This is reason."
         return render_template("result.html", success=success, reason=reason)
+
+@app.route("/api/check", methods=["POST"])
+def api_check_post():
+    print("Header:", request.headers["Content-Type"])
+    req_data = json.dumps(request.json)
+    print(request.data)
+    print(request.json)
+
+    data = {
+        "hello"  : "world",
+        "number" : 3,
+        "result" : "OK"
+    }
+    resp = jsonify(data)
+    return resp
+    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=1234)
