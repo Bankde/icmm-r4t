@@ -56,11 +56,35 @@ def result_post():
         success = False
         
     if success:
-        user1 = request.form.get("user1")
-        user2 = request.form.get("user2")
-        user3 = request.form.get("user3")
-        user4 = request.form.get("user4")
-        return render_template("result.html", success=success, teamName=team_name, user1=user1, user2=user2, user3=user3, user4=user4)
+        team_name = request.form.get("teamName")
+        r1_firstname = request.form.get("r1FirstName")
+        r1_lastname = request.form.get("r1LastName")
+        r2_firstname = request.form.get("r2FirstName")
+        r2_lastname = request.form.get("r2LastName")
+        r3_firstname = request.form.get("r3FirstName")
+        r3_lastname = request.form.get("r3LastName")
+        r4_firstname = request.form.get("r4FirstName")
+        r4_lastname = request.form.get("r4LastName")
+        
+        return render_template("result.html", 
+            success=success,
+            teamName=team_name, 
+            user1={
+                "firstname" : r1_firstname,
+                "lastname" : r1_lastname,
+            }, 
+            user2={
+                "firstname" : r2_firstname,
+                "lastname" : r2_lastname,
+            },
+            user3={
+                "firstname" : r3_firstname,
+                "lastname" : r3_lastname,
+            },
+            user4={
+                "firstname" : r4_firstname,
+                "lastname" : r4_lastname,
+            })
     else:
         reason = "This is reason."
         return render_template("result.html", success=success, reason=reason)

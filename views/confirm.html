@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row justify-content-md-center">
         <div class="col-md-8 order-md-1">
-            <h1>Confrim your team members</h1>
+            <h1>ยืนยันสมาชิกทีม</h1>
         </div>
     </div>
     <div class="row justify-content-md-center">
@@ -61,7 +61,8 @@
                         <input type="text" class="form-control" id="r4LastName" name="r4LastName" value="{{ user4.lastname }}" readonly>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary float-right" id="confirmButton" value="Confirm" >Confirm</button>
+                <button type="button" class="btn btn-secondary float-right" onclick="history.back(-1)" id="backButton">ย้อนกลับ</button>
+                <button type="submit" class="btn btn-primary float-right" id="confirmButton">ยืนยัน</button>
             </form>
         </div>  
     </div>
