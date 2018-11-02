@@ -1,73 +1,102 @@
 {% extends "layout.html" %}
 {% block body %}
-<div class="row justify-content-md-center">
-    <h1>Create Team</h1>
-</div>
-<div class="container"></div>
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="col-md-8 order-md-1">
+            <h1>Create Team</h1>
+        </div>
+    </div>
     <div class="row justify-content-md-center">
         <div class="col-md-8 order-md-1">
             <form action="/confirm" method="post">
                 <div class="mb-3">
-                    <label for="teamName">ชื่อทีม</label>
-                    <input type="text" class="form-control" id="teamName" placeholder="icmmการวิ่ง" required="">
+                    <h4 for="teamName">ชื่อทีม</h4>
+                    <span class="text-muted" id="teamStatus"></span>
+                    <input type="text" class="form-control" id="teamName" name="teamName" placeholder="icmmการวิ่ง" required="">
                     <div class="invalid-feedback">
                     กรุณากรอกชื่อทีม
                     </div>
                 </div>
-                <h4 class="mb-3">นักวิ่งคนที่ 1</h4>
+                <!-- RUNNER 1 -->
+                <h4 class="mb-3">นักวิ่งคนที่ 1 <span class="text-muted" id="user1Status"></span></h4>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                    <label for="firstName">ชื่อ</label>
-                    <input type="text" class="form-control" id="firstName" placeholder="" value="" required="">
+                    <label for="r1FirsttName">ชื่อ</label>
+                    <input type="text" class="form-control" id="r1FirstName" name="r1FirstName" placeholder="" value="" required="">
                     <div class="invalid-feedback">
-                        Valid first name is required.
+                        กรุณากรอกชื่อนักวิ่ง
                     </div>
                     </div>
                     <div class="col-md-6 mb-3">
-                    <label for="lastName">นามสกุล</label>
-                    <input type="text" class="form-control" id="lastName" placeholder="" value="" required="">
+                    <label for="r1LastName">นามสกุล</label>
+                    <input type="text" class="form-control" id="r1LastName" name="r1LastName" placeholder="" value="" required="">
                     <div class="invalid-feedback">
-                        Valid last name is required.
+                        กรุณากรอกนามสกุลนักวิ่ง
                     </div>
                     </div>
                 </div>
-                Team Name: <input type="text" class="form-control" name="teamName" placeholder="Your team's name" id="teamName" required>
-                <label for="teamName" >Status
-                    <span class="text-muted" id="teamStatus"></span>
-                </label>
-                <br>
-                
-                Member1: <input type="text" class="form-control" name="user1" placeholder="member1 name" id="user1Name" required>
-                <label for="user1Name" >Status
-                        <span class="text-muted" id="user1Status"></span>
-                </label>
-                <br>
-
-                Member2: <input type="text" class="form-control" name="user2" placeholder="member2 name" id="user2Name" required>
-                <label for="user2Name" >Status
-                    <span class="text-muted" id="user2Status"></span>
-                </label>
-                <br>
-
-                Member3: <input type="text" class="form-control" name="user3" placeholder="member3 name" id="user3Name" required>
-                <label for="user3Name" >Status
-                        <span class="text-muted" id="user3Status"></span>
-                </label>
-                <br>
-
-                Member4: <input type="text" class="form-control" name="user4" placeholder="member4 name" id="user4Name" required>
-                <label for="user4Name" >Status
-                        <span class="text-muted" id="user4Status"></span>
-                </label>
-                <br>
+                <!-- RUNNER 2 -->
+                <h4 class="mb-3">นักวิ่งคนที่ 2 <span class="text-muted" id="user2Status"></span></h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                    <label for="r2FirsttName">ชื่อ</label>
+                    <input type="text" class="form-control" id="r2FirstName" name="r2FirstName" placeholder="" value="" required="">
+                    <div class="invalid-feedback">
+                        กรุณากรอกชื่อนักวิ่ง
+                    </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                    <label for="r2LastName">นามสกุล</label>
+                    <input type="text" class="form-control" id="r2LastName" name="r2LastName" placeholder="" value="" required="">
+                    <div class="invalid-feedback">
+                        กรุณากรอกนามสกุลนักวิ่ง
+                    </div>
+                    </div>
+                </div>
+                <!-- RUNNER 3 -->
+                <h4 class="mb-3">นักวิ่งคนที่ 3 <span class="text-muted" id="user3Status"></span></h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                    <label for="r3FirsttName">ชื่อ</label>
+                    <input type="text" class="form-control" id="r3FirstName" name="r3FirstName" placeholder="" value="" required="">
+                    <div class="invalid-feedback">
+                        กรุณากรอกชื่อนักวิ่ง
+                    </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                    <label for="r3LastName">นามสกุล</label>
+                    <input type="text" class="form-control" id="r3LastName" name="r3LastName" placeholder="" value="" required="">
+                    <div class="invalid-feedback">
+                        กรุณากรอกนามสกุลนักวิ่ง
+                    </div>
+                    </div>
+                </div>
+                <!-- RUNNER 4 -->
+                <h4 class="mb-3">นักวิ่งคนที่ 4 <span class="text-muted" id="user4Status"></span></h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                    <label for="r4FirsttName">ชื่อ</label>
+                    <input type="text" class="form-control" id="r4FirstName" name="r4FirstName" placeholder="" value="" required="">
+                    <div class="invalid-feedback">
+                        กรุณากรอกชื่อนักวิ่ง
+                    </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                    <label for="r4LastName">นามสกุล</label>
+                    <input type="text" class="form-control" id="r4LastName" name="r4LastName" placeholder="" value="" required="">
+                    <div class="invalid-feedback">
+                        กรุณากรอกนามสกุลนักวิ่ง
+                    </div>
+                    </div>
+                </div>
 
                 <label>Result
                     <span class="text-muted" id="checkResult"></span>
                 </label>
 
-                <button type="button" id="checkButton">Check</button>
-                <button type="submit"id="submitButton" value="Submit" disabled>Submit</button>
-                <button type="reset" value="Reset">Reset</button>
+                <button type="reset" class="btn btn-danger float-right" value="Reset">Reset</button>
+                <button type="submit" class="btn btn-primary float-right" id="submitButton" value="Submit" disabled>Submit</button>
+                <button type="button" class="btn btn-info float-right" id="checkButton">Check</button>
             </form>
         </div>
     </div>
@@ -89,17 +118,24 @@
         })
         $("#checkButton").click(function(){
             var teamName = $("#teamName").val()
-            var user1Name = $("#user1Name").val();
-            var user2Name = $("#user2Name").val();
-            var user3Name = $("#user3Name").val();
-            var user4Name = $("#user4Name").val();
-
             data = {
                 "teamName": teamName,
-                "user1": user1Name,
-                "user2": user2Name,
-                "user3": user3Name,
-                "user4": user4Name
+                "user1": {
+                    "firstname" : $("#r1FirstName").val(),
+                    "lastname" : $("#r1LastName").val()
+                },
+                "user2": {
+                    "firstname" : $("#r2FirstName").val(),
+                    "lastname" : $("#r2LastName").val()
+                },
+                "user3": {
+                    "firstname" : $("#r3FirstName").val(),
+                    "lastname" : $("#r3LastName").val()
+                },
+                "user4": {
+                    "firstname" : $("#r4FirstName").val(),
+                    "lastname" : $("#r4LastName").val()
+                },
             }
             $.ajax({
                 type: "POST",
