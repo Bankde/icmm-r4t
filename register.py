@@ -32,10 +32,10 @@ def setMsgData(data, index, msg):
     return data
 
 def checkTeam(teamName, user1, user2, user3, user4):
-    userList = [(user1["firstname"],user1["lastname"]) , (user2["firstname"],user2["lastname"]) , 
+    userList = [(user1["firstname"],user1["lastname"]) , (user2["firstname"],user2["lastname"]) ,
                 (user3["firstname"],user3["lastname"]) , (user4["firstname"],user4["lastname"])]
 
-    data = {}
+    data = {"member1": "notInit", "member2": "notInit", "member3": "notInit", "member4": "notInit"}
 
     conn = sqlite3.connect(users_db)
     c = conn.cursor()
@@ -49,7 +49,7 @@ def checkTeam(teamName, user1, user2, user3, user4):
     else:
         data["teamName"] = "Ok"
 
-    userSet = {}
+    userSet = set()
 
     for index in range(0,4):
         if userList[index][0] == "" or userList[index][1] == "":
@@ -61,10 +61,14 @@ def checkTeam(teamName, user1, user2, user3, user4):
         userSet.add(userList[index])
 
         values = (userList[index][0], userList[index][1], )
-        c.execute("SELECT firstname, lastname, team, first10k FROM users WHERE (firstname = ? AND lastname = ?)", values)
+        c.execute("SELECT firstname, lastname, teamName, first10k FROM users WHERE (firstname = ? AND lastname = ?)", values)
         all_data = c.fetchall()
 
-        if len(all_data) != 1:
+        if len(all_data) == 0:
+            setMsgData(data, index, "User not found")
+            continue
+
+        if len(all_data) > 1:
             print("Error: found duplicate data in database %s %s" % (userList[index][0], userList[index][1]))
             assert(0)
 
@@ -89,10 +93,14 @@ def checkTeam(teamName, user1, user2, user3, user4):
 
     conn.close()
 
-    if data["member1"] == "Ok" and data["member2"] == "Ok" and data["member3"] == "Ok" and data["member4"] == "Ok":
+    if data["teamName"] == "Ok" and \
+       data["member1"] == "Ok" and \
+       data["member2"] == "Ok" and \
+       data["member3"] == "Ok" and \
+       data["member4"] == "Ok":
         data["success"] = True
     else:
-        data["sucess"] = False
+        data["success"] = False
 
     return data
 
@@ -108,13 +116,13 @@ def confirm_post():
     r3_lastname = request.form.get("r3LastName")
     r4_firstname = request.form.get("r4FirstName")
     r4_lastname = request.form.get("r4LastName")
-    
-    return render_template("confirm.html", 
-        teamName=team_name, 
+
+    return render_template("confirm.html",
+        teamName=team_name,
         user1={
             "firstname" : r1_firstname,
             "lastname" : r1_lastname,
-        }, 
+        },
         user2={
             "firstname" : r2_firstname,
             "lastname" : r2_lastname,
@@ -146,7 +154,7 @@ def result_post():
     user4={"firstname" : r4_firstname, "lastname" : r4_lastname}
     data = checkTeam(team_name, user1, user2, user3, user4)
     success = data["success"]
-        
+
     if success:
         conn = sqlite3.connect(users_db)
         c = conn.cursor()
@@ -159,13 +167,13 @@ def result_post():
         c.commit()
         c.close()
 
-        return render_template("result.html", 
+        return render_template("result.html",
             success=success,
-            teamName=team_name, 
+            teamName=team_name,
             user1={
                 "firstname" : r1_firstname,
                 "lastname" : r1_lastname,
-            }, 
+            },
             user2={
                 "firstname" : r2_firstname,
                 "lastname" : r2_lastname,
@@ -194,7 +202,7 @@ def api_check_post():
     data = checkTeam(team_name, user1, user2, user3, user4)
     resp = jsonify(data)
     return resp
-    
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=1234)
