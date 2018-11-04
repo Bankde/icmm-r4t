@@ -148,6 +148,17 @@ def result_post():
     success = data["success"]
         
     if success:
+        conn = sqlite3.connect(users_db)
+        c = conn.cursor()
+
+        # Check teamName
+        values = (teamName, r1_firstname, r1_lastname, r2_firstname, r2_lastname,
+            r3_firstname, r3_lastname, r4_firstname, r4_lastname)
+        c.execute("""UPDATE users SET teamName=? WHERE (firstname=? AND lastname=?) OR (firstname=? AND lastname=?)
+            OR (firstname=? AND lastname=?) OR (firstname=? AND lastname=?)""", values)
+        c.commit()
+        c.close()
+
         return render_template("result.html", 
             success=success,
             teamName=team_name, 
@@ -168,7 +179,7 @@ def result_post():
                 "lastname" : r4_lastname,
             })
     else:
-        reason = "This is reason."
+        reason = "Something went wrong. Make sure you check the team before submitted."
         return render_template("result.html", success=success, reason=reason)
 
 @app.route("/api/check", methods=["POST"])
