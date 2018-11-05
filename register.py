@@ -1,6 +1,9 @@
-from flask import Flask, render_template, request, jsonify, json
+from flask import Flask, render_template, request, jsonify
+import json
 import os
 import sqlite3
+
+default_config_path = "./config.json"
 
 users_db = "users.db"
 
@@ -203,6 +206,16 @@ def api_check_post():
     resp = jsonify(data)
     return resp
 
+def load_json_config(config_path):
+    config = None
+    with open(config_path) as f:
+        config = json.load(f)
+    return config
+
+def main():
+    config = load_json_config(default_config_path)
+    server_conf = config["server"]
+    app.run(host=server_conf["bindAddress"], port=server_conf["port"])
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=1234)
+    main()

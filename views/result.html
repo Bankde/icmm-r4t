@@ -21,8 +21,8 @@
                 <li class="list-group-item">{{ user4.firstname }} {{ user4.lastname }}</li>
             </ul>
             {% else %}
-            <h2>Failed to create team {{ teamName }}</h2>
-            <p>Reason: {{ reason }}</p>
+                <h2>สร้างทีม {{ teamName }} ไม่สำเร็จ</h2>
+                <p>{{ reason }}</p>
             {% endif %}
         </div>
     </div>

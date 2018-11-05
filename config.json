@@ -1,0 +1,11 @@
+{
+    "server" : {
+        "bindAddress": "0.0.0.0",
+        "port" : 1234
+    }
+    ,"spreadsheet" : {
+        "credentials" : "./credentials.json",
+        "spreadsheetKey" : "google_sheet_key",
+        "worksheet" : "team"
+    }
+}
