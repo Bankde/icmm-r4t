@@ -164,12 +164,12 @@ def result_post():
         c = conn.cursor()
 
         # Check teamName
-        values = (teamName, r1_firstname, r1_lastname, r2_firstname, r2_lastname,
+        values = (team_name, r1_firstname, r1_lastname, r2_firstname, r2_lastname,
             r3_firstname, r3_lastname, r4_firstname, r4_lastname)
         c.execute("""UPDATE users SET teamName=? WHERE (firstname=? AND lastname=?) OR (firstname=? AND lastname=?)
             OR (firstname=? AND lastname=?) OR (firstname=? AND lastname=?)""", values)
-        c.commit()
-        c.close()
+        conn.commit()
+        conn.close()
 
         return render_template("result.html",
             success=success,
