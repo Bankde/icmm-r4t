@@ -3,16 +3,47 @@
 import pandas as pd
 import argparse
 import sqlite3
+import os
+
+users_db = "users.db"
+
+def createDb():
+    conn = sqlite3.connect(users_db)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE users
+               (firstname TEXT, lastname TEXT, teamName TEXT, first10k INTEGER)''')
+    conn.commit()
+    conn.close()
 
 def main(args):
     # Read source
     if args.source_type == "excel":
-        df = pd.read_excel(open(args.source,'rb'), sheet_name=args.sheet_name)
+        df = pd.read_excel(open(args.source,'rb'), sheet_name=args.sheet_name, encoding='utf-8')
     else:
         df = pd.read_csv(args.source)
+
+    if not os.path.isfile(users_db):
+        createDb()
+
+    conn = sqlite3.connect(users_db)
+    cursor = conn.cursor()
     # Iterate data
     for row in df.values:
-        print(row)
+        firstname = row[3]
+        lastname = row[4]
+        teamName = None
+        first10k_word = row[10]
+        if first10k_word == "เคย":
+            first10k = 1
+        elif first10k_word == "ไม่เคย":
+            first10k = 0
+        else:
+            assert(0)
+        values = (firstname, lastname, teamName, first10k)
+        cursor.execute("INSERT INTO users VALUES (?,?,?,?)", values)
+    conn.commit()
+    conn.close()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
