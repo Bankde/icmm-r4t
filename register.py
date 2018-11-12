@@ -225,7 +225,7 @@ def main():
     global team_spread
     config = load_json_config(DEFAULT_CONFIG_PATH)
     server_conf = config["server"]
-    spread_conf = config["spreasheet"]
+    spread_conf = config["spreadsheet"]
 
     team_spread = TeamSpread(
         spread_conf["credentials"], 
