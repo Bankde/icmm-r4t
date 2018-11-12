@@ -57,6 +57,7 @@ def checkTeam(teamName, user1, user2, user3, user4):
         data["teamName"] = "Ok"
 
     userSet = set()
+    userNotFirst10k = []
 
     for index in range(0,4):
         if userList[index][0] == "" or userList[index][1] == "":
@@ -88,17 +89,17 @@ def checkTeam(teamName, user1, user2, user3, user4):
             setMsgData(data, index, "Already registered")
             continue
 
-        if index < 2 and isFirst10k != True:
-            setMsgData(data, index, "Not a 10k")
-            continue
-
-        if index >= 2 and isFirst10k == True:
-            setMsgData(data, index, "Not a 5k")
-            continue
+        if isFirst10k == 0:
+            userNotFirst10k.append(index)
 
         setMsgData(data, index, "Ok")
 
     conn.close()
+
+    # Not enough first10k
+    if len(userNotFirst10k) > 2:
+        for index in userNotFirst10k:
+            setMsgData(data, index, "This user ran 10k before")
 
     if data["teamName"] == "Ok" and \
        data["member1"] == "Ok" and \
