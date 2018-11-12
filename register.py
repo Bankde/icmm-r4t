@@ -3,8 +3,9 @@ from flask import Flask, render_template, request, jsonify
 import json
 import os
 import sqlite3
+from teamspread import TeamSpread
 
-default_config_path = "./config.json"
+DEFAULT_CONFIG_PATH = "./config.json"
 
 users_db = "users.db"
 
@@ -12,6 +13,8 @@ template_dir = os.path.abspath("./views")
 app = Flask(__name__,  template_folder=template_dir, static_url_path="/static")
 # Auto reload if a template file is changed
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+team_spread = None
 
 @app.route("/static/<path:path>")
 def send_js(path):
@@ -171,6 +174,11 @@ def result_post():
         conn.commit()
         conn.close()
 
+        # TODO: 
+        # - Read and prepare team_data
+        # - Upload team_data to spreadsheet
+        # team_spread.update_team(team_data)
+
         return render_template("result.html",
             success=success,
             teamName=team_name,
@@ -214,8 +222,16 @@ def load_json_config(config_path):
     return config
 
 def main():
-    config = load_json_config(default_config_path)
+    global team_spread
+    config = load_json_config(DEFAULT_CONFIG_PATH)
     server_conf = config["server"]
+    spread_conf = config["spreasheet"]
+
+    team_spread = TeamSpread(
+        spread_conf["credentials"], 
+        spread_conf["spreadsheetKey"],
+        spread_conf["worksheet"])
+    
     app.run(host=server_conf["bindAddress"], port=server_conf["port"])
 
 if __name__ == "__main__":
