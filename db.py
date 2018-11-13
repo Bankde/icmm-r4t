@@ -15,6 +15,7 @@ def setMsgData(data, index, msg):
     return data
 
 class UserDB:
+    """Singleton style database class"""
     DB_CONN = None
 
     @classmethod
