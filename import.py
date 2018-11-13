@@ -22,16 +22,18 @@ def main(args):
         lastname = row[4]
         teamName = None
         distance = row[8]
-        if "10" not in distance:
+        if "10 KM" not in distance:
             # Skip 5K runner
             continue
+
         first10k_word = row[10]
         if first10k_word == "เคย":
-            first10k = 1
-        elif first10k_word == "ไม่เคย":
             first10k = 0
+        elif first10k_word == "ไม่เคย":
+            first10k = 1
         else:
             assert(0)
+            
         user = (firstname, lastname, teamName, first10k)
         users.append(user)
     print("Inserting %d users" % (len(users)))
