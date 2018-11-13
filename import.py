@@ -4,16 +4,7 @@ import pandas as pd
 import argparse
 import sqlite3
 import os
-
-users_db = "users.db"
-
-def createDb():
-    conn = sqlite3.connect(users_db)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE users
-               (firstname TEXT, lastname TEXT, teamName TEXT, first10k INTEGER)''')
-    conn.commit()
-    conn.close()
+from db import UserDB
 
 def main(args):
     # Read source
@@ -22,16 +13,18 @@ def main(args):
     else:
         df = pd.read_csv(args.source)
 
-    if not os.path.isfile(users_db):
-        createDb()
-
-    conn = sqlite3.connect(users_db)
-    cursor = conn.cursor()
+    UserDB.connect(args.db_path)
+    UserDB.initSchema()
     # Iterate data
+    users = []
     for row in df.values:
         firstname = row[3]
         lastname = row[4]
         teamName = None
+        distance = row[8]
+        if "10" not in distance:
+            # Skip 5K runner
+            continue
         first10k_word = row[10]
         if first10k_word == "เคย":
             first10k = 1
@@ -39,19 +32,20 @@ def main(args):
             first10k = 0
         else:
             assert(0)
-        values = (firstname, lastname, teamName, first10k)
-        cursor.execute("INSERT INTO users VALUES (?,?,?,?)", values)
-    conn.commit()
-    conn.close()
+        user = (firstname, lastname, teamName, first10k)
+        users.append(user)
+    print("Inserting %d users" % (len(users)))
+    UserDB.insertUsers(users)
+    UserDB.close()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("source", help="Path to csv or excel", action="store", type=str)
-    parser.add_argument("db_path", help="Path to sqlite3 database", action="store", type=str)
-    parser.add_argument("--source-type", help="Type of source", action="store",
-                        choices=["csv", "excel"], default="csv", dest="source_type", type=str)
-    parser.add_argument("--sheet-name", help="Sheet name for excel", action="store",
+    parser.add_argument("db_path", help="Path to sqlite3 database ex. ./users.db", action="store", type=str)
+    parser.add_argument("--source-type", help="Type of source (default is excel)", action="store",
+                        choices=["csv", "excel"], default="excel", dest="source_type", type=str)
+    parser.add_argument("--sheet-name", help="Sheet name for excel (default is Sheet1)", action="store",
                         default="Sheet1", dest="sheet_name", type=str)
     args = parser.parse_args()
     main(args)

@@ -1,37 +1,16 @@
-import sqlite3
 import os
-from register import checkTeam
-import pytest
+import sys
+import inspect
+CURRENT_DIR = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+PARENT_DIR = os.path.dirname(CURRENT_DIR)
+# Include paths for module search
+sys.path.insert(0, PARENT_DIR)
 
-users_db = "users.db"
+from db import UserDB
 
-users = {}
-users["1"] = {"firstname": "A", "lastname": "A", "teamName": "", "first10k": "1"}
-users["2"] = {"firstname": "B", "lastname": "B", "teamName": "", "first10k": "1"}
-users["3"] = {"firstname": "C", "lastname": "C", "teamName": "", "first10k": "0"}
-users["4"] = {"firstname": "D", "lastname": "D", "teamName": "", "first10k": "0"}
-users["5"] = {"firstname": "E", "lastname": "E", "teamName": "", "first10k": "1"}
-users["6"] = {"firstname": "F", "lastname": "F", "teamName": "", "first10k": "0"}
-users["7"] = {"firstname": "G", "lastname": "G", "teamName": "MyTeam", "first10k": "0"}
-users["8"] = {"firstname": "H", "lastname": "H", "teamName": "", "first10k": "1"}
-users["9"] = {"firstname": "I", "lastname": "I", "teamName": "", "first10k": "0"}
-
-@pytest.fixture(scope="session", autouse=True)
-def initTest():
-    os.remove(users_db)
-    conn = sqlite3.connect(users_db)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE users
-               (firstname TEXT, lastname TEXT, teamName TEXT, first10k INTEGER)''')
-    conn.commit()
-    for key in users:
-        values = (users[key]["firstname"], users[key]["lastname"], users[key]["teamName"], users[key]["first10k"])
-        c.execute('''INSERT INTO users VALUES (?,?,?,?)''', values)
-    conn.commit()
-    conn.close()
-
-def testFail_DupUser():
-    data = checkTeam("HelloWorld", users["1"], users["1"], users["3"], users["3"])
+def testFail_DupUser(users):
+    data = UserDB.checkTeam("HelloWorld", users["1"], users["1"], users["3"], users["3"])
     print(data)
     assert(data["success"] == False)
     assert(data["teamName"] == "Ok")
@@ -40,8 +19,8 @@ def testFail_DupUser():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Duplicate name found")
 
-def testFail_DupUserAllFirst10k():
-    data = checkTeam("HelloWorld", users["1"], users["2"], users["5"], users["5"])
+def testFail_DupUserAllFirst10k(users):
+    data = UserDB.checkTeam("HelloWorld", users["1"], users["2"], users["5"], users["5"])
     print(data)
     assert(data["success"] == False)
     assert(data["teamName"] == "Ok")
@@ -50,9 +29,9 @@ def testFail_DupUserAllFirst10k():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Duplicate name found")
 
-def testFail_UserNotExist():
+def testFail_UserNotExist(users):
     notExistUser = {"firstname": "Z", "lastname": "Z"}
-    data = checkTeam("HelloWorld", users["1"], users["2"], notExistUser, users["4"])
+    data = UserDB.checkTeam("HelloWorld", users["1"], users["2"], notExistUser, users["4"])
     assert(data["success"] == False)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "Ok")
@@ -60,8 +39,8 @@ def testFail_UserNotExist():
     assert(data["member3"] == "User not found")
     assert(data["member4"] == "Ok")
 
-def testFail_AlreadyRegistered():
-    data = checkTeam("HelloWorld", users["1"], users["2"], users["3"], users["7"])
+def testFail_AlreadyRegistered(users):
+    data = UserDB.checkTeam("HelloWorld", users["1"], users["2"], users["3"], users["7"])
     assert(data["success"] == False)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "Ok")
@@ -69,8 +48,8 @@ def testFail_AlreadyRegistered():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Already registered")
 
-def testFail_AlreadyRegisteredAndThree10k():
-    data = checkTeam("HelloWorld", users["3"], users["4"], users["6"], users["7"])
+def testFail_AlreadyRegisteredAndThree10k(users):
+    data = UserDB.checkTeam("HelloWorld", users["3"], users["4"], users["6"], users["7"])
     assert(data["success"] == False)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "This user ran 10k before")
@@ -78,8 +57,8 @@ def testFail_AlreadyRegisteredAndThree10k():
     assert(data["member3"] == "This user ran 10k before")
     assert(data["member4"] == "Already registered")
 
-def testSuccess_regular():
-    data = checkTeam("MyNewTeam", users["1"], users["2"], users["3"], users["4"])
+def testSuccess_regular(users):
+    data = UserDB.checkTeam("MyNewTeam", users["1"], users["2"], users["3"], users["4"])
     assert(data["success"] == True)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "Ok")
@@ -87,8 +66,8 @@ def testSuccess_regular():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Ok")
 
-def testSuccess_SwapPosition():
-    data = checkTeam("HelloWorld", users["4"], users["3"], users["2"], users["1"])
+def testSuccess_SwapPosition(users):
+    data = UserDB.checkTeam("HelloWorld", users["4"], users["3"], users["2"], users["1"])
     assert(data["success"] == True)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "Ok")
@@ -96,8 +75,8 @@ def testSuccess_SwapPosition():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Ok")
 
-def testSuccess_SwapPosition_2():
-    data = checkTeam("HelloWorld", users["1"], users["3"], users["4"], users["2"])
+def testSuccess_SwapPosition_2(users):
+    data = UserDB.checkTeam("HelloWorld", users["1"], users["3"], users["4"], users["2"])
     assert(data["success"] == True)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "Ok")
@@ -105,8 +84,8 @@ def testSuccess_SwapPosition_2():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Ok")
 
-def testSuccess_ThreeFirst10k():
-    data = checkTeam("HelloWorld", users["1"], users["2"], users["3"], users["5"])
+def testSuccess_ThreeFirst10k(users):
+    data = UserDB.checkTeam("HelloWorld", users["1"], users["2"], users["3"], users["5"])
     assert(data["success"] == True)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "Ok")
@@ -114,8 +93,8 @@ def testSuccess_ThreeFirst10k():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Ok")
 
-def testFail_OneFirst10k():
-    data = checkTeam("HelloWorld", users["3"], users["1"], users["4"], users["6"])
+def testFail_OneFirst10k(users):
+    data = UserDB.checkTeam("HelloWorld", users["3"], users["1"], users["4"], users["6"])
     assert(data["success"] == False)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "This user ran 10k before")
@@ -123,8 +102,8 @@ def testFail_OneFirst10k():
     assert(data["member3"] == "This user ran 10k before")
     assert(data["member4"] == "This user ran 10k before")
 
-def testSuccess_AllFirst10k():
-    data = checkTeam("HelloWorld", users["1"], users["2"], users["5"], users["8"])
+def testSuccess_AllFirst10k(users):
+    data = UserDB.checkTeam("HelloWorld", users["1"], users["2"], users["5"], users["8"])
     assert(data["success"] == True)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "Ok")
@@ -132,8 +111,8 @@ def testSuccess_AllFirst10k():
     assert(data["member3"] == "Ok")
     assert(data["member4"] == "Ok")
 
-def testFail_AllNotFirst10k():
-    data = checkTeam("HelloWorld", users["3"], users["4"], users["6"], users["9"])
+def testFail_AllNotFirst10k(users):
+    data = UserDB.checkTeam("HelloWorld", users["3"], users["4"], users["6"], users["9"])
     assert(data["success"] == False)
     assert(data["teamName"] == "Ok")
     assert(data["member1"] == "This user ran 10k before")
@@ -141,8 +120,8 @@ def testFail_AllNotFirst10k():
     assert(data["member3"] == "This user ran 10k before")
     assert(data["member4"] == "This user ran 10k before")
 
-def testFail_DupTeam():
-    data = checkTeam("MyTeam", users["1"], users["2"], users["3"], users["4"])
+def testFail_DupTeam(users):
+    data = UserDB.checkTeam("MyTeam", users["1"], users["2"], users["3"], users["4"])
     assert(data["success"] == False)
     assert(data["teamName"] == "Team name's already existed")
     assert(data["member1"] == "Ok")
