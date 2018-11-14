@@ -35,28 +35,68 @@ class UserDB:
     def initSchema(cls):
         print("Initialize database schema")
         c = cls.DB_CONN.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS users
-                (firstname TEXT, lastname TEXT, teamName TEXT, first10k INTEGER)''')
+        c.execute("""CREATE TABLE IF NOT EXISTS users (
+                firstname TEXT, 
+                lastname TEXT, 
+                teamId UNSIGNED INT DEFAULT NULL, 
+                first10k INTEGER,
+                PRIMARY KEY ('firstname', 'lastname')
+            )""")
+        c.execute("""CREATE TABLE IF NOT EXISTS teams (
+                id UNSIGNED INT AUTO_INCREMENT,
+                teamName TEXT NOT NULL, 
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                PRIMARY KEY ('id'),
+                UNIQUE KEY 'teamName' ('teamName')
+            )""")
         cls.DB_CONN.commit()
 
+
     @classmethod
-    def listAll(cls):
+    def insertTeam(cls, teamName):
+        team = [teamName]
         c = cls.DB_CONN.cursor()
-        c.execute("SELECT firstname, lastname, teamName, first10k FROM users")
+        c.execute("INSERT INTO teamName VALUES (?)", team)
+        rows = c.fetchall()
+        return rows
+
+    @classmethod
+    def getTeamById(cls, teamId):
+        values = [teamId]
+        c = cls.DB_CONN.cursor()
+        c.execute("""SELECT id, teamName, timestamp 
+            FROM teams
+            WHERE id = ?""", values)
+        rows = c.fetchall()
+        return rows
+
+    def getTeamByTeamName(cls, teamName):
+        values = [teamName]
+        c = cls.DB_CONN.cursor()
+        c.execute("""SELECT id, teamName, timestamp
+            FROM teams
+            WHERE teamName = ?""", values)
+        rows = c.fetchall()
+        return rows
+
+    @classmethod
+    def getUsers(cls):
+        c = cls.DB_CONN.cursor()
+        c.execute("SELECT firstname, lastname, teamId, first10k FROM users")
         rows = c.fetchall()
         return rows
     
     @classmethod
-    def listByUser(cls, firstname, lastname):
+    def getUserByName(cls, firstname, lastname):
         c = cls.DB_CONN.cursor()
         values = (firstname, lastname)
-        c.execute("SELECT firstname, lastname, teamName, first10k FROM users WHERE (firstname = ? AND lastname = ?)", values)
+        c.execute("SELECT firstname, lastname, teamId, first10k FROM users WHERE (firstname = ? AND lastname = ?)", values)
         rows = c.fetchall()
         return rows
 
     @classmethod
-    def insertUser(cls, firstname, lastname, teamName, first10k):
-        user = [firstname, lastname, teamName, first10k]
+    def insertUser(cls, firstname, lastname, teamId, first10k):
+        user = [firstname, lastname, teamId, first10k]
         c = cls.DB_CONN.cursor()
         c.execute("INSERT INTO users VALUES (?,?,?,?)", user)
         cls.DB_CONN.commit()
@@ -65,15 +105,15 @@ class UserDB:
     def insertUsers(cls, users):
         c = cls.DB_CONN.cursor()
         for user in users:
-            # user is [firstname, lastname, teamName, first10k]
+            # user is [firstname, lastname, teamId, first10k]
             c.execute("INSERT INTO users VALUES (?,?,?,?)", user)
         cls.DB_CONN.commit()
     
     @classmethod
-    def updateTeamByUser(cls, teamName, firstname, lastname):
-        values = [teamName, firstname, lastname]
+    def updateTeamByUser(cls, teamId, firstname, lastname):
+        values = [teamId, firstname, lastname]
         c = cls.DB_CONN.cursor()
-        c.execute("""UPDATE users SET teamName=? WHERE firstname=? AND lastname=?""", values)
+        c.execute("""UPDATE users SET teamId=? WHERE firstname=? AND lastname=?""", values)
         cls.DB_CONN.commit()
 
     @classmethod
@@ -87,7 +127,7 @@ class UserDB:
 
         # Check teamName
         values = (teamName, )
-        c.execute("""SELECT teamName FROM users WHERE teamName = ?""", values)
+        c.execute("""SELECT teamName FROM teams WHERE teamName = ?""", values)
         all_data = c.fetchall()
         if len(all_data) != 0:
             data["teamName"] = "Team name's already existed"
@@ -106,7 +146,7 @@ class UserDB:
                 continue
             userSet.add(userList[index])
 
-            all_data = UserDB.listByUser(userList[index][0], userList[index][1])
+            all_data = UserDB.getUserByName(userList[index][0], userList[index][1])
 
             if len(all_data) == 0:
                 setMsgData(data, index, "User not found")
