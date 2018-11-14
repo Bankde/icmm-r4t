@@ -66,8 +66,8 @@ class UserDB:
         c.execute("""SELECT id, teamName, timestamp 
             FROM teams
             WHERE id = ?""", values)
-        rows = c.fetchall()
-        return rows
+        row = c.fetchone()
+        return row
     
     @classmethod
     def getTeamByTeamName(cls, teamName):
@@ -76,7 +76,7 @@ class UserDB:
         c.execute("""SELECT id, teamName, timestamp
             FROM teams
             WHERE teamName = ?""", values)
-        rows = c.fetchall()
+        rows = c.fetchone()
         return rows
 
     @classmethod
@@ -128,8 +128,8 @@ class UserDB:
         c = cls.DB_CONN.cursor()
 
         # Check if teamName exists.
-        teams = UserDB.getTeamByTeamName(teamName)
-        if len(teams) != 0:
+        team = UserDB.getTeamByTeamName(teamName)
+        if team is not None:
             data["teamName"] = "Team name's already existed"
         else:
             data["teamName"] = "Ok"

@@ -93,42 +93,46 @@ def result_post():
     with app.app_context():
         db = get_db()
         data = db.checkTeam(team_name, user1, user2, user3, user4)
-    success = data["success"]
+        success = data["success"]
 
-    if success:
-        # Update teamName
-        UserDB.updateTeamByUser(team_name, r1_firstname, r1_lastname)
-        UserDB.updateTeamByUser(team_name, r2_firstname, r2_lastname)
-        UserDB.updateTeamByUser(team_name, r3_firstname, r3_lastname)
-        UserDB.updateTeamByUser(team_name, r4_firstname, r4_lastname)
+        if success:
+            # Insert new team
+            UserDB.insertTeam(team_name)
+            team = UserDB.getTeamByTeamName(team_name)
+            team_id = team[0]
+            # Update teamId at 
+            UserDB.updateTeamByUser(team_id, r1_firstname, r1_lastname)
+            UserDB.updateTeamByUser(team_id, r2_firstname, r2_lastname)
+            UserDB.updateTeamByUser(team_id, r3_firstname, r3_lastname)
+            UserDB.updateTeamByUser(team_id, r4_firstname, r4_lastname)
 
-        # TODO: 
-        # - Read and prepare team_data
-        # - Upload team_data to spreadsheet
-        # team_spread.update_team(team_data)
+            # TODO: 
+            # - Read and prepare team_data
+            # - Upload team_data to spreadsheet
+            # team_spread.update_team(team_data)
 
-        return render_template("result.html",
-            success=success,
-            teamName=team_name,
-            user1={
-                "firstname" : r1_firstname,
-                "lastname" : r1_lastname,
-            },
-            user2={
-                "firstname" : r2_firstname,
-                "lastname" : r2_lastname,
-            },
-            user3={
-                "firstname" : r3_firstname,
-                "lastname" : r3_lastname,
-            },
-            user4={
-                "firstname" : r4_firstname,
-                "lastname" : r4_lastname,
-            })
-    else:
-        reason = "Something went wrong. Make sure you check the team before submitted."
-        return render_template("result.html", success=success, reason=reason)
+            return render_template("result.html",
+                success=success,
+                teamName=team_name,
+                user1={
+                    "firstname" : r1_firstname,
+                    "lastname" : r1_lastname,
+                },
+                user2={
+                    "firstname" : r2_firstname,
+                    "lastname" : r2_lastname,
+                },
+                user3={
+                    "firstname" : r3_firstname,
+                    "lastname" : r3_lastname,
+                },
+                user4={
+                    "firstname" : r4_firstname,
+                    "lastname" : r4_lastname,
+                })
+        else:
+            reason = "Something went wrong. Make sure you check the team before submitted."
+            return render_template("result.html", success=success, reason=reason)
 
 @app.route("/api/check", methods=["POST"])
 def api_check_post():
@@ -173,7 +177,7 @@ def main():
     debug_flag = False
     if "debug" in config["server"]:
         debug_flag = config["server"]["debug"]
-
+    
     try:
         app.run(host=server_conf["bindAddress"], port=server_conf["port"], debug=debug_flag)
     finally:
