@@ -43,11 +43,9 @@ class UserDB:
                 PRIMARY KEY ('firstname', 'lastname')
             )""")
         c.execute("""CREATE TABLE IF NOT EXISTS teams (
-                id UNSIGNED INT AUTO_INCREMENT,
-                teamName TEXT NOT NULL, 
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                teamName TEXT NOT NULL UNIQUE, 
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                PRIMARY KEY ('id'),
-                UNIQUE KEY 'teamName' ('teamName')
             )""")
         cls.DB_CONN.commit()
 
@@ -56,7 +54,7 @@ class UserDB:
     def insertTeam(cls, teamName):
         team = [teamName]
         c = cls.DB_CONN.cursor()
-        c.execute("INSERT INTO teamName VALUES (?)", team)
+        c.execute("INSERT INTO teams (teamName) VALUES (?)", team)
         rows = c.fetchall()
         return rows
 
