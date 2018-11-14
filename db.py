@@ -35,17 +35,18 @@ class UserDB:
     def initSchema(cls):
         print("Initialize database schema")
         c = cls.DB_CONN.cursor()
-        c.execute("""CREATE TABLE IF NOT EXISTS users (
-                firstname TEXT, 
-                lastname TEXT, 
-                teamId UNSIGNED INT DEFAULT NULL, 
-                first10k INTEGER,
-                PRIMARY KEY ('firstname', 'lastname')
-            )""")
         c.execute("""CREATE TABLE IF NOT EXISTS teams (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 teamName TEXT NOT NULL UNIQUE, 
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )""")
+        c.execute("""CREATE TABLE IF NOT EXISTS users (
+                firstname TEXT, 
+                lastname TEXT, 
+                teamId INTEGER DEFAULT NULL, 
+                first10k INTEGER,
+                PRIMARY KEY ('firstname', 'lastname'),
+                FOREIGN KEY(teamId) REFERENCES teams(id)
             )""")
         cls.DB_CONN.commit()
 
@@ -67,7 +68,8 @@ class UserDB:
             WHERE id = ?""", values)
         rows = c.fetchall()
         return rows
-
+    
+    @classmethod
     def getTeamByTeamName(cls, teamName):
         values = [teamName]
         c = cls.DB_CONN.cursor()
@@ -78,9 +80,11 @@ class UserDB:
         return rows
 
     @classmethod
-    def getUsers(cls):
+    def getUsersWithTeam(cls):
         c = cls.DB_CONN.cursor()
-        c.execute("SELECT firstname, lastname, teamId, first10k FROM users")
+        c.execute("""SELECT users.firstname, users.lastname, users.teamId, users.first10k, 
+            teams.timestamp, teams.timestamp 
+            FROM users JOIN teams on users.teamId = teams.id""")
         rows = c.fetchall()
         return rows
     
@@ -123,11 +127,9 @@ class UserDB:
 
         c = cls.DB_CONN.cursor()
 
-        # Check teamName
-        values = (teamName, )
-        c.execute("""SELECT teamName FROM teams WHERE teamName = ?""", values)
-        all_data = c.fetchall()
-        if len(all_data) != 0:
+        # Check if teamName exists.
+        teams = UserDB.getTeamByTeamName(teamName)
+        if len(teams) != 0:
             data["teamName"] = "Team name's already existed"
         else:
             data["teamName"] = "Ok"
