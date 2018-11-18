@@ -83,10 +83,12 @@ class UserDB:
 
     @classmethod
     def getUsersWithTeam(cls):
+        # returned format : [firstname, lastname, teamId, first10k, teamName, timestamp]
         c = cls.DB_CONN.cursor()
         c.execute("""SELECT users.firstname, users.lastname, users.teamId, users.first10k, 
-            teams.timestamp, teams.timestamp 
-            FROM users JOIN teams on users.teamId = teams.id""")
+            teams.teamName, teams.timestamp 
+            FROM users JOIN teams on users.teamId = teams.id
+            ORDER BY teams.timestamp""")
         rows = c.fetchall()
         return rows
     

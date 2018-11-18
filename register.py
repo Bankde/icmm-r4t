@@ -4,9 +4,11 @@ import json
 import os
 import sqlite3
 from teamspread import TeamSpread
+from datetime import datetime, timezone, timedelta
 from db import UserDB
 
 DEFAULT_CONFIG_PATH = "./config.json"
+DEFAULT_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 template_dir = os.path.abspath("./views")
 app = Flask(__name__,  template_folder=template_dir, static_url_path="/static")
@@ -23,7 +25,7 @@ def get_db():
         with app.app_context():
             db = get_db()
     """
-    db = getattr(g, '_database', None)
+    db = getattr(g, "_database", None)
     if db is None:
         UserDB.connect(config["db"]["path"])
         db = UserDB
@@ -106,8 +108,32 @@ def result_post():
 
             # TODO: 
             # - Read and prepare team_data
+            users = UserDB.getUsersWithTeam()
             # - Upload team_data to spreadsheet
-            # team_spread.update_team(team_data)
+            team_dict = {}
+            for user_team in users:
+                firstname, lastname, team_id, first10k, team_name, timestamp = user_team
+                if team_id not in team_dict:
+                    # time format: '2018-11-18 02:29:13'
+                    time_obj = datetime.strptime(timestamp, DEFAULT_TIME_FORMAT)
+                    # Convert to BKK timezone
+                    time_obj = time_obj + timedelta(hours=7)
+                    print("timestamp:", timestamp)
+                    print("time_obj:", time_obj.strftime(DEFAULT_TIME_FORMAT))
+                    team_dict[team_id] = {
+                        "timestamp" : time_obj.strftime(DEFAULT_TIME_FORMAT),
+                        "team_name" : team_name,
+                        "members" : ["%s %s" % (firstname, lastname)]
+                    }
+                else:
+                    team_dict[team_id]["members"].append("%s %s" % (firstname, lastname))
+            # - Convert to spreadsheet format
+            team_rows = []
+            for idx, data in enumerate(team_dict.items()):
+                # data is tuple of key and value.
+                row = [idx + 1, data[1]["timestamp"], data[1]["team_name"], *data[1]["members"]]
+                team_rows.append(row)
+            team_spread.update_team(team_rows)
 
             return render_template("result.html",
                 success=success,

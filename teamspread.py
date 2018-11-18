@@ -16,6 +16,7 @@ class TeamSpread():
     def update_team(self, team_data):
         # element in team_data : [number, created_at, team_name, runner1, runner2, runner3, runner4]
         worksheet = self.spread_sheet.worksheet(self.sheet_name)
+        print("Update team data: %d rows" % (len(team_data)))
 
         cell_list = worksheet.range("A2:G%d" % (len(team_data) + 1))
         for idx, cell in enumerate(cell_list):
