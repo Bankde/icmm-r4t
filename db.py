@@ -29,7 +29,9 @@ class UserDB:
     @classmethod
     def close(cls):
         if cls.DB_CONN:
+            print("Close database connection")
             cls.DB_CONN.close()
+            cls.DB_CONN = None
     
     @classmethod
     def initSchema(cls):
