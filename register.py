@@ -42,10 +42,15 @@ def send_js(path):
 @app.route("/")
 def index_get():
     team_list_link = config["template"]["teamListLink"]
-    return render_template("index.html", teamListLink=team_list_link)
+    base_url = config["template"]["baseUrl"]
+    return render_template("index.html", 
+        teamListLink=team_list_link,
+        baseUrl=base_url)
 
 @app.route("/confirm", methods=["POST"])
 def confirm_post():
+    team_list_link = config["template"]["teamListLink"]
+    base_url = config["template"]["baseUrl"]
     team_name = request.form.get("teamName").strip()
     r1_firstname = request.form.get("r1FirstName").strip()
     r1_lastname = request.form.get("r1LastName").strip()
@@ -73,10 +78,14 @@ def confirm_post():
         user4={
             "firstname" : r4_firstname,
             "lastname" : r4_lastname,
-        })
+        }, 
+        teamListLink=team_list_link,
+        baseUrl=base_url)
 
 @app.route("/result", methods=["POST"])
 def result_post():
+    team_list_link = config["template"]["teamListLink"]
+    base_url = config["template"]["baseUrl"]
     team_name = request.form.get("teamName").strip()
     r1_firstname = request.form.get("r1FirstName").strip()
     r1_lastname = request.form.get("r1LastName").strip()
@@ -154,10 +163,15 @@ def result_post():
                 user4={
                     "firstname" : r4_firstname,
                     "lastname" : r4_lastname,
-                })
+                }, 
+                teamListLink=team_list_link,
+                baseUrl=base_url)
         else:
             reason = "Something went wrong. Make sure you check the team before submitted."
-            return render_template("result.html", success=success, reason=reason)
+            return render_template("result.html", 
+                success=success, reason=reason, 
+                teamListLink=team_list_link,
+                baseUrl=base_url)
 
 @app.route("/api/check", methods=["POST"])
 def api_check_post():

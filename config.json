@@ -13,6 +13,7 @@
         "path" : "users.db"
     },
     "template":{
-        "teamListLink" : "https://www.icmm.run"
+        "teamListLink" : "https://www.icmm.run",
+        "baseUrl" : null
     }
 }
