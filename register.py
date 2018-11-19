@@ -41,7 +41,8 @@ def send_js(path):
 
 @app.route("/")
 def index_get():
-    return render_template("index.html")
+    team_list_link = config["template"]["teamListLink"]
+    return render_template("index.html", teamListLink=team_list_link)
 
 @app.route("/confirm", methods=["POST"])
 def confirm_post():
