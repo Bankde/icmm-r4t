@@ -29,34 +29,80 @@ class UserDB:
     @classmethod
     def close(cls):
         if cls.DB_CONN:
+            print("Close database connection")
             cls.DB_CONN.close()
+            cls.DB_CONN = None
     
     @classmethod
     def initSchema(cls):
         print("Initialize database schema")
         c = cls.DB_CONN.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS users
-                (firstname TEXT, lastname TEXT, teamName TEXT, first10k INTEGER)''')
+        c.execute("""CREATE TABLE IF NOT EXISTS teams (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                teamName TEXT NOT NULL UNIQUE, 
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )""")
+        c.execute("""CREATE TABLE IF NOT EXISTS users (
+                firstname TEXT, 
+                lastname TEXT, 
+                teamId INTEGER DEFAULT NULL, 
+                first10k INTEGER,
+                PRIMARY KEY ('firstname', 'lastname'),
+                FOREIGN KEY(teamId) REFERENCES teams(id)
+            )""")
         cls.DB_CONN.commit()
 
+
     @classmethod
-    def listAll(cls):
+    def insertTeam(cls, teamName):
+        team = [teamName]
         c = cls.DB_CONN.cursor()
-        c.execute("SELECT firstname, lastname, teamName, first10k FROM users")
+        c.execute("INSERT INTO teams (teamName) VALUES (?)", team)
+        rows = c.fetchall()
+        return rows
+
+    @classmethod
+    def getTeamById(cls, teamId):
+        values = [teamId]
+        c = cls.DB_CONN.cursor()
+        c.execute("""SELECT id, teamName, timestamp 
+            FROM teams
+            WHERE id = ?""", values)
+        row = c.fetchone()
+        return row
+    
+    @classmethod
+    def getTeamByTeamName(cls, teamName):
+        values = [teamName]
+        c = cls.DB_CONN.cursor()
+        c.execute("""SELECT id, teamName, timestamp
+            FROM teams
+            WHERE teamName = ?""", values)
+        rows = c.fetchone()
+        return rows
+
+    @classmethod
+    def getUsersWithTeam(cls):
+        # returned format : [firstname, lastname, teamId, first10k, teamName, timestamp]
+        c = cls.DB_CONN.cursor()
+        c.execute("""SELECT users.firstname, users.lastname, users.teamId, users.first10k, 
+            teams.teamName, teams.timestamp 
+            FROM users JOIN teams on users.teamId = teams.id
+            ORDER BY teams.timestamp""")
         rows = c.fetchall()
         return rows
     
     @classmethod
-    def listByUser(cls, firstname, lastname):
+    def getUserByName(cls, firstname, lastname):
         c = cls.DB_CONN.cursor()
         values = (firstname, lastname)
-        c.execute("SELECT firstname, lastname, teamName, first10k FROM users WHERE (firstname = ? AND lastname = ?)", values)
+        c.execute("SELECT firstname, lastname, teamId, first10k FROM users WHERE (firstname = ? AND lastname = ?)", values)
         rows = c.fetchall()
         return rows
 
     @classmethod
-    def insertUser(cls, firstname, lastname, teamName, first10k):
-        user = [firstname, lastname, teamName, first10k]
+    def insertUser(cls, firstname, lastname, teamId, first10k):
+        user = [firstname, lastname, teamId, first10k]
         c = cls.DB_CONN.cursor()
         c.execute("INSERT INTO users VALUES (?,?,?,?)", user)
         cls.DB_CONN.commit()
@@ -65,15 +111,15 @@ class UserDB:
     def insertUsers(cls, users):
         c = cls.DB_CONN.cursor()
         for user in users:
-            # user is [firstname, lastname, teamName, first10k]
+            # user is [firstname, lastname, teamId, first10k]
             c.execute("INSERT INTO users VALUES (?,?,?,?)", user)
         cls.DB_CONN.commit()
     
     @classmethod
-    def updateTeamByUser(cls, teamName, firstname, lastname):
-        values = [teamName, firstname, lastname]
+    def updateTeamByUser(cls, teamId, firstname, lastname):
+        values = [teamId, firstname, lastname]
         c = cls.DB_CONN.cursor()
-        c.execute("""UPDATE users SET teamName=? WHERE firstname=? AND lastname=?""", values)
+        c.execute("""UPDATE users SET teamId=? WHERE firstname=? AND lastname=?""", values)
         cls.DB_CONN.commit()
 
     @classmethod
@@ -85,11 +131,9 @@ class UserDB:
 
         c = cls.DB_CONN.cursor()
 
-        # Check teamName
-        values = (teamName, )
-        c.execute("""SELECT teamName FROM users WHERE teamName = ?""", values)
-        all_data = c.fetchall()
-        if len(all_data) != 0:
+        # Check if teamName exists.
+        team = UserDB.getTeamByTeamName(teamName)
+        if team is not None:
             data["teamName"] = "Team name's already existed"
         else:
             data["teamName"] = "Ok"
@@ -106,7 +150,7 @@ class UserDB:
                 continue
             userSet.add(userList[index])
 
-            all_data = UserDB.listByUser(userList[index][0], userList[index][1])
+            all_data = UserDB.getUserByName(userList[index][0], userList[index][1])
 
             if len(all_data) == 0:
                 setMsgData(data, index, "User not found")

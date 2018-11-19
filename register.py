@@ -4,9 +4,11 @@ import json
 import os
 import sqlite3
 from teamspread import TeamSpread
+from datetime import datetime, timezone, timedelta
 from db import UserDB
 
 DEFAULT_CONFIG_PATH = "./config.json"
+DEFAULT_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 template_dir = os.path.abspath("./views")
 app = Flask(__name__,  template_folder=template_dir, static_url_path="/static")
@@ -23,7 +25,7 @@ def get_db():
         with app.app_context():
             db = get_db()
     """
-    db = getattr(g, '_database', None)
+    db = getattr(g, "_database", None)
     if db is None:
         UserDB.connect(config["db"]["path"])
         db = UserDB
@@ -31,9 +33,7 @@ def get_db():
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+    UserDB.close()
 
 @app.route("/static/<path:path>")
 def send_js(path):
@@ -93,42 +93,70 @@ def result_post():
     with app.app_context():
         db = get_db()
         data = db.checkTeam(team_name, user1, user2, user3, user4)
-    success = data["success"]
+        success = data["success"]
 
-    if success:
-        # Update teamName
-        UserDB.updateTeamByUser(team_name, r1_firstname, r1_lastname)
-        UserDB.updateTeamByUser(team_name, r2_firstname, r2_lastname)
-        UserDB.updateTeamByUser(team_name, r3_firstname, r3_lastname)
-        UserDB.updateTeamByUser(team_name, r4_firstname, r4_lastname)
+        if success:
+            # Insert new team
+            UserDB.insertTeam(team_name)
+            team = UserDB.getTeamByTeamName(team_name)
+            team_id = team[0]
+            # Update teamId at 
+            UserDB.updateTeamByUser(team_id, r1_firstname, r1_lastname)
+            UserDB.updateTeamByUser(team_id, r2_firstname, r2_lastname)
+            UserDB.updateTeamByUser(team_id, r3_firstname, r3_lastname)
+            UserDB.updateTeamByUser(team_id, r4_firstname, r4_lastname)
 
-        # TODO: 
-        # - Read and prepare team_data
-        # - Upload team_data to spreadsheet
-        # team_spread.update_team(team_data)
+            # TODO: 
+            # - Read and prepare team_data
+            users = UserDB.getUsersWithTeam()
+            # - Upload team_data to spreadsheet
+            team_dict = {}
+            for user_team in users:
+                firstname, lastname, team_id, first10k, team_name, timestamp = user_team
+                if team_id not in team_dict:
+                    # time format: '2018-11-18 02:29:13'
+                    time_obj = datetime.strptime(timestamp, DEFAULT_TIME_FORMAT)
+                    # Convert to BKK timezone
+                    time_obj = time_obj + timedelta(hours=7)
+                    print("timestamp:", timestamp)
+                    print("time_obj:", time_obj.strftime(DEFAULT_TIME_FORMAT))
+                    team_dict[team_id] = {
+                        "timestamp" : time_obj.strftime(DEFAULT_TIME_FORMAT),
+                        "team_name" : team_name,
+                        "members" : ["%s %s" % (firstname, lastname)]
+                    }
+                else:
+                    team_dict[team_id]["members"].append("%s %s" % (firstname, lastname))
+            # - Convert to spreadsheet format
+            team_rows = []
+            for idx, data in enumerate(team_dict.items()):
+                # data is tuple of key and value.
+                row = [idx + 1, data[1]["timestamp"], data[1]["team_name"], *data[1]["members"]]
+                team_rows.append(row)
+            team_spread.update_team(team_rows)
 
-        return render_template("result.html",
-            success=success,
-            teamName=team_name,
-            user1={
-                "firstname" : r1_firstname,
-                "lastname" : r1_lastname,
-            },
-            user2={
-                "firstname" : r2_firstname,
-                "lastname" : r2_lastname,
-            },
-            user3={
-                "firstname" : r3_firstname,
-                "lastname" : r3_lastname,
-            },
-            user4={
-                "firstname" : r4_firstname,
-                "lastname" : r4_lastname,
-            })
-    else:
-        reason = "Something went wrong. Make sure you check the team before submitted."
-        return render_template("result.html", success=success, reason=reason)
+            return render_template("result.html",
+                success=success,
+                teamName=team_name,
+                user1={
+                    "firstname" : r1_firstname,
+                    "lastname" : r1_lastname,
+                },
+                user2={
+                    "firstname" : r2_firstname,
+                    "lastname" : r2_lastname,
+                },
+                user3={
+                    "firstname" : r3_firstname,
+                    "lastname" : r3_lastname,
+                },
+                user4={
+                    "firstname" : r4_firstname,
+                    "lastname" : r4_lastname,
+                })
+        else:
+            reason = "Something went wrong. Make sure you check the team before submitted."
+            return render_template("result.html", success=success, reason=reason)
 
 @app.route("/api/check", methods=["POST"])
 def api_check_post():
@@ -173,7 +201,7 @@ def main():
     debug_flag = False
     if "debug" in config["server"]:
         debug_flag = config["server"]["debug"]
-
+    
     try:
         app.run(host=server_conf["bindAddress"], port=server_conf["port"], debug=debug_flag)
     finally:
