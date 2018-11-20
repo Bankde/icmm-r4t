@@ -23,7 +23,7 @@
             <form action="confirm" method="post">
                 <div class="mb-3">
                     <h4 for="teamName">ชื่อทีม <span class="text-muted" id="teamStatus"></span></h4>
-                    <input type="text" class="form-control" id="teamName" name="teamName" placeholder="icmmการวิ่ง" required="">
+                    <input type="text" class="form-control" id="teamName" name="teamName" placeholder="Run 4 Team" required="">
                     <div class="invalid-feedback">
                     กรุณากรอกชื่อทีม
                     </div>
@@ -102,9 +102,9 @@
                 </div>
 
                 <div class="row">
-                    <label>
-                        <span class="text-muted" id="checkResult"></span>
-                    </label>
+                    <h4>
+                        <span id="checkResult"></span>
+                    </h4>
                 </div>
 
                 <button type="reset" class="btn btn-danger btn-space float-right" >รีเซต</button>
@@ -123,6 +123,32 @@
             $("#user2Status").text(user2Status);
             $("#user3Status").text(user3Status);
             $("#user4Status").text(user4Status);
+
+            if( teamStatus === "Ok" ){
+                $("#teamStatus").attr("class","text-success");
+            }else{
+                $("#teamStatus").attr("class","text-danger");
+            }
+            if( user1Status === "Ok" ){
+                $("#user1Status").attr("class","text-success");
+            }else{
+                $("#user1Status").attr("class","text-danger");
+            }
+            if( user2Status === "Ok" ){
+                $("#user2Status").attr("class","text-success");
+            }else{
+                $("#user2Status").attr("class","text-danger");
+            }
+            if( user3Status === "Ok" ){
+                $("#user3Status").attr("class","text-success");
+            }else{
+                $("#user3Status").attr("class","text-danger");
+            }
+            if( user4Status === "Ok" ){
+                $("#user4Status").attr("class","text-success");
+            }else{
+                $("#user4Status").attr("class","text-danger");
+            }
         };
 
         $("input").change(function(){
@@ -165,10 +191,12 @@
                         $(':input[type="submit"]').addClass('btn-primary');
                         $(':input[type="submit"]').removeClass('btn-secondary');
                         $("#checkResult").text("สามารสมัครทีมได้ กดที่ปุ่มสมัครเพื่อสมัคร Run4Team");
+                        $("#checkResult").attr("class","text-sucess");
                         updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
                     }else{
-                        alert(res.message || "พบข้อผิดพลาด กรุณาตรวจสอบข้อมูลชื่อทีมหรือนักวิ่ง");
-                        $("#checkResult").text("พบข้อผิดพลาด กรุณาตรวจสอบข้อมูลชื่อทีมหรือนักวิ่ง");
+                        alert(res.message || "พบข้อผิดพลาด กรุณาตรวจสอบข้อมูลชื่อทีมหรือนักวิ่งอีกครั้ง");
+                        $("#checkResult").text("พบข้อผิดพลาด กรุณาตรวจสอบข้อมูลชื่อทีมหรือนักวิ่งอีกครั้ง");
+                        $("#checkResult").attr("class","text-danger");
                         updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
                     }
                 },

@@ -1,4 +1,5 @@
 import sqlite3
+from constant import ResMessage
 
 def setMsgData(data, index, msg):
     if index == 0:
@@ -23,13 +24,10 @@ class UserDB:
         if cls.DB_CONN is None:
             print("Connecting database: %s" % (db_path))
             cls.DB_CONN = sqlite3.connect(db_path)
-        else:
-            print("Database has connected")
 
     @classmethod
     def close(cls):
         if cls.DB_CONN:
-            print("Close database connection")
             cls.DB_CONN.close()
             cls.DB_CONN = None
     
@@ -134,26 +132,26 @@ class UserDB:
         # Check if teamName exists.
         team = UserDB.getTeamByTeamName(teamName)
         if team is not None:
-            data["teamName"] = "Team name's already existed"
+            data["teamName"] = ResMessage.DUP_TEAM_NAME
         else:
-            data["teamName"] = "Ok"
+            data["teamName"] = ResMessage.OK
 
         userSet = set()
         userNotFirst10k = []
 
         for index in range(0,4):
             if userList[index][0] == "" or userList[index][1] == "":
-                setMsgData(data, index, "Field cannot be empty")
+                setMsgData(data, index, ResMessage.EMPTY_FIELD)
                 continue
             if userList[index] in userSet:
-                setMsgData(data, index, "Duplicate name found")
+                setMsgData(data, index, ResMessage.DUP_RUNNER)
                 continue
             userSet.add(userList[index])
 
             all_data = UserDB.getUserByName(userList[index][0], userList[index][1])
 
             if len(all_data) == 0:
-                setMsgData(data, index, "User not found")
+                setMsgData(data, index, ResMessage.USER_NOT_FOUND)
                 continue
 
             if len(all_data) > 1:
@@ -166,24 +164,24 @@ class UserDB:
             isFirst10k = all_data[0][3]
 
             if not(team == "" or team == None):
-                setMsgData(data, index, "Already registered")
+                setMsgData(data, index, ResMessage.USER_REGISTERED)
                 continue
 
             if isFirst10k == 0:
                 userNotFirst10k.append(index)
 
-            setMsgData(data, index, "Ok")
+            setMsgData(data, index, ResMessage.OK)
 
         # Not enough first10k
         if len(userNotFirst10k) > 2:
             for index in userNotFirst10k:
-                setMsgData(data, index, "This user ran 10k before")
+                setMsgData(data, index, ResMessage.NOT_FIRST_10K)
 
-        if all([data["teamName"] == "Ok",
-        data["member1"] == "Ok",
-        data["member2"] == "Ok",
-        data["member3"] == "Ok",
-        data["member4"] == "Ok"]):
+        if all([data["teamName"] == ResMessage.OK,
+        data["member1"] == ResMessage.OK,
+        data["member2"] == ResMessage.OK,
+        data["member3"] == ResMessage.OK,
+        data["member4"] == ResMessage.OK]):
             data["success"] = True
         else:
             data["success"] = False
