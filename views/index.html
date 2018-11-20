@@ -22,8 +22,7 @@
         <div class="col-md-8 order-md-1">
             <form action="confirm" method="post">
                 <div class="mb-3">
-                    <h4 for="teamName">ชื่อทีม</h4>
-                    <span class="text-muted" id="teamStatus"></span>
+                    <h4 for="teamName">ชื่อทีม <span class="text-muted" id="teamStatus"></span></h4>
                     <input type="text" class="form-control" id="teamName" name="teamName" placeholder="icmmการวิ่ง" required="">
                     <div class="invalid-feedback">
                     กรุณากรอกชื่อทีม
@@ -106,9 +105,9 @@
                     <span class="text-muted" id="checkResult"></span>
                 </label>
 
-                <button type="reset" class="btn btn-danger btn-space float-right" value="Reset">Reset</button>
-                <button type="submit" class="btn btn-primary btn-space float-right" id="submitButton" value="Submit" disabled>Submit</button>
-                <button type="button" class="btn btn-info btn-space float-right" id="checkButton">Check</button>
+                <button type="reset" class="btn btn-danger btn-space float-right" >รีเซต</button>
+                <button type="submit" class="btn btn-secondary btn-space float-right" id="submitButton" disabled>สมัคร</button>
+                <button type="button" class="btn btn-info btn-space float-right" id="checkButton" >ตรวจสอบชื่อ</button>
             </form>
         </div>
     </div>
@@ -127,6 +126,8 @@
         $("input").change(function(){
             // If any input is changed, disable the submit button.
             $(':input[type="submit"]').prop('disabled', true);
+            $(':input[type="submit"]').removeClass('btn-primary');
+            $(':input[type="submit"]').addClass('btn-seconday');
         })
         $("#checkButton").click(function(){
             var teamName = $("#teamName").val()
@@ -159,13 +160,18 @@
                     if(res.success){
                         // Enable submit button.
                         $(':input[type="submit"]').prop('disabled', false);
-                        $("#checkResult").text("Okay");
+                        $(':input[type="submit"]').addClass('btn-primary');
+                        $(':input[type="submit"]').removeClass('btn-secondary');
+                        $("#checkResult").text("สามารสมัครทีมได้");
                         updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
                     }else{
                         alert("Team is not valid!");
-                        $("#checkResult").text("Not valid");
+                        $("#checkResult").text("พบข้อผิดพลาด");
                         updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
                     }
+                },
+                error: function(err){
+                    alert("Cannot connect to server");
                 }
             });
         });
