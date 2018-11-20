@@ -128,8 +128,6 @@ def result_post():
                     time_obj = datetime.strptime(timestamp, DEFAULT_TIME_FORMAT)
                     # Convert to BKK timezone
                     time_obj = time_obj + timedelta(hours=7)
-                    print("timestamp:", timestamp)
-                    print("time_obj:", time_obj.strftime(DEFAULT_TIME_FORMAT))
                     team_dict[team_id] = {
                         "timestamp" : time_obj.strftime(DEFAULT_TIME_FORMAT),
                         "team_name" : team_name,
