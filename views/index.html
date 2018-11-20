@@ -101,9 +101,11 @@
                     </div>
                 </div>
 
-                <label>Result
-                    <span class="text-muted" id="checkResult"></span>
-                </label>
+                <div class="row">
+                    <label>
+                        <span class="text-muted" id="checkResult"></span>
+                    </label>
+                </div>
 
                 <button type="reset" class="btn btn-danger btn-space float-right" >รีเซต</button>
                 <button type="submit" class="btn btn-secondary btn-space float-right" id="submitButton" disabled>สมัคร</button>
@@ -162,11 +164,11 @@
                         $(':input[type="submit"]').prop('disabled', false);
                         $(':input[type="submit"]').addClass('btn-primary');
                         $(':input[type="submit"]').removeClass('btn-secondary');
-                        $("#checkResult").text("สามารสมัครทีมได้");
+                        $("#checkResult").text("สามารสมัครทีมได้ กดที่ปุ่มสมัครเพื่อสมัคร Run4Team");
                         updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
                     }else{
-                        alert("Team is not valid!");
-                        $("#checkResult").text("พบข้อผิดพลาด");
+                        alert(res.message || "พบข้อผิดพลาด กรุณาตรวจสอบข้อมูลชื่อทีมหรือนักวิ่ง");
+                        $("#checkResult").text("พบข้อผิดพลาด กรุณาตรวจสอบข้อมูลชื่อทีมหรือนักวิ่ง");
                         updateStatus(res.teamName,res.member1,res.member2,res.member3,res.member4)
                     }
                 },
