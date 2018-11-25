@@ -144,7 +144,7 @@ class UserDB:
                 setMsgData(data, index, ResMessage.EMPTY_FIELD)
                 continue
             if userList[index] in userSet:
-                setMsgData(data, index, ResMessage.DUP_RUNNER)
+                setMsgData(data, index, ResMessage.DUP_USER)
                 continue
             userSet.add(userList[index])
 
