@@ -94,7 +94,7 @@ def testSuccess_ThreeFirst10k(users):
     assert(data["member3"] == ResMessage.OK)
     assert(data["member4"] == ResMessage.OK)
 
-def testFail_OneFirst10k(users):
+def testSuccess_OneFirst10k(users):
     data = UserDB.checkTeam("HelloWorld", users["3"], users["1"], users["4"], users["6"])
     assert(data["success"] == True)
     assert(data["teamName"] == ResMessage.OK)
