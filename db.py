@@ -30,20 +30,20 @@ class UserDB:
         if cls.DB_CONN:
             cls.DB_CONN.close()
             cls.DB_CONN = None
-    
+
     @classmethod
     def initSchema(cls):
         print("Initialize database schema")
         c = cls.DB_CONN.cursor()
         c.execute("""CREATE TABLE IF NOT EXISTS teams (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                teamName TEXT NOT NULL UNIQUE, 
+                teamName TEXT NOT NULL UNIQUE,
                 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )""")
         c.execute("""CREATE TABLE IF NOT EXISTS users (
-                firstname TEXT, 
-                lastname TEXT, 
-                teamId INTEGER DEFAULT NULL, 
+                firstname TEXT,
+                lastname TEXT,
+                teamId INTEGER DEFAULT NULL,
                 first10k INTEGER,
                 PRIMARY KEY ('firstname', 'lastname'),
                 FOREIGN KEY(teamId) REFERENCES teams(id)
@@ -63,12 +63,12 @@ class UserDB:
     def getTeamById(cls, teamId):
         values = [teamId]
         c = cls.DB_CONN.cursor()
-        c.execute("""SELECT id, teamName, timestamp 
+        c.execute("""SELECT id, teamName, timestamp
             FROM teams
             WHERE id = ?""", values)
         row = c.fetchone()
         return row
-    
+
     @classmethod
     def getTeamByTeamName(cls, teamName):
         values = [teamName]
@@ -83,13 +83,13 @@ class UserDB:
     def getUsersWithTeam(cls):
         # returned format : [firstname, lastname, teamId, first10k, teamName, timestamp]
         c = cls.DB_CONN.cursor()
-        c.execute("""SELECT users.firstname, users.lastname, users.teamId, users.first10k, 
-            teams.teamName, teams.timestamp 
+        c.execute("""SELECT users.firstname, users.lastname, users.teamId, users.first10k,
+            teams.teamName, teams.timestamp
             FROM users JOIN teams on users.teamId = teams.id
             ORDER BY teams.timestamp""")
         rows = c.fetchall()
         return rows
-    
+
     @classmethod
     def getUserByName(cls, firstname, lastname):
         c = cls.DB_CONN.cursor()
@@ -104,7 +104,7 @@ class UserDB:
         c = cls.DB_CONN.cursor()
         c.execute("INSERT INTO users VALUES (?,?,?,?)", user)
         cls.DB_CONN.commit()
-    
+
     @classmethod
     def insertUsers(cls, users):
         c = cls.DB_CONN.cursor()
@@ -112,7 +112,7 @@ class UserDB:
             # user is [firstname, lastname, teamId, first10k]
             c.execute("INSERT INTO users VALUES (?,?,?,?)", user)
         cls.DB_CONN.commit()
-    
+
     @classmethod
     def updateTeamByUser(cls, teamId, firstname, lastname):
         values = [teamId, firstname, lastname]
@@ -173,7 +173,7 @@ class UserDB:
             setMsgData(data, index, ResMessage.OK)
 
         # Not enough first10k
-        if len(userNotFirst10k) > 2:
+        if len(userNotFirst10k) > 3:
             for index in userNotFirst10k:
                 setMsgData(data, index, ResMessage.NOT_FIRST_10K)
 

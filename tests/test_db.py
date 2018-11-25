@@ -53,12 +53,12 @@ def testFail_AlreadyRegisteredAndThree10k(users):
     data = UserDB.checkTeam("HelloWorld", users["3"], users["4"], users["6"], users["7"])
     assert(data["success"] == False)
     assert(data["teamName"] == ResMessage.OK)
-    assert(data["member1"] == ResMessage.NOT_FIRST_10K)
-    assert(data["member2"] == ResMessage.NOT_FIRST_10K)
-    assert(data["member3"] == ResMessage.NOT_FIRST_10K)
+    assert(data["member1"] == ResMessage.OK)
+    assert(data["member2"] == ResMessage.OK)
+    assert(data["member3"] == ResMessage.OK)
     assert(data["member4"] == ResMessage.USER_REGISTERED)
 
-def testSuccess_regular(users):
+def testSuccess_TwoFirst10k(users):
     data = UserDB.checkTeam("MyNewTeam", users["1"], users["2"], users["3"], users["4"])
     assert(data["success"] == True)
     assert(data["teamName"] == ResMessage.OK)
@@ -96,12 +96,12 @@ def testSuccess_ThreeFirst10k(users):
 
 def testFail_OneFirst10k(users):
     data = UserDB.checkTeam("HelloWorld", users["3"], users["1"], users["4"], users["6"])
-    assert(data["success"] == False)
+    assert(data["success"] == True)
     assert(data["teamName"] == ResMessage.OK)
-    assert(data["member1"] == ResMessage.NOT_FIRST_10K)
+    assert(data["member1"] == ResMessage.OK)
     assert(data["member2"] == ResMessage.OK)
-    assert(data["member3"] == ResMessage.NOT_FIRST_10K)
-    assert(data["member4"] == ResMessage.NOT_FIRST_10K)
+    assert(data["member3"] == ResMessage.OK)
+    assert(data["member4"] == ResMessage.OK)
 
 def testSuccess_AllFirst10k(users):
     data = UserDB.checkTeam("HelloWorld", users["1"], users["2"], users["5"], users["8"])
