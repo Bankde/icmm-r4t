@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  app-server:
+    build: .
+    environment:
+      - BIND_ADDRESS='localhost'
+      - PORT=5000
+      - ENV_MODE=production
+      - NUM_WORKER=1
+      - GSHEET_CREDENTIAL_FILE=/data/credentials.json
+      - GSHEET_SPREADSHEET_KEY=google_sheet_key
+      - GSHEET_WORKSHEET=team
+      - SQLITE_DB_PATH=/data/users.db
+      - UI_TEMPLATE_TEAM_LIST_LINK=https://www.icmm.run
+      - UI_TEMPLATE_BASE_URL=
+    volumes:
+      - ./data:/data
+    command: python register.py
+    ports:
+      - 8050:5000
+  

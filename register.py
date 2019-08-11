@@ -7,16 +7,31 @@ from teamspread import TeamSpread
 from datetime import datetime, timezone, timedelta
 from db import UserDB
 
-DEFAULT_CONFIG_PATH = "./config.json"
 DEFAULT_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+
+BIND_ADDRESS = os.environ.get('BIND_ADDRESS', 'localhost')
+PORT = os.environ.get('PORT', 5000)
+ENV_MODE = os.environ.get('ENV_MODE', 'production').lower()
+
+GSHEET_CREDENTIAL_FILE = os.environ.get('GSHEET_CREDENTIAL_FILE', './data/credentials.json')
+GSHEET_SPREADSHEET_KEY = os.environ.get('GSHEET_SPREADSHEET_KEY')
+GSHEET_WORKSHEET = os.environ.get('GSHEET_WORKSHEET', 'team')
+
+SQLITE_DB_PATH = os.environ.get('SQLITE_DB_PATH', './data/users.db')
+
+UI_TEMPLATE_TEAM_LIST_LINK = os.environ.get('UI_TEMPLATE_TEAM_LIST_LINK', 'https://www.icmm.run')
+UI_TEMPLATE_BASE_URL = os.environ.get('UI_TEMPLATE_BASE_URL', None)
 
 template_dir = os.path.abspath("./views")
 app = Flask(__name__,  template_folder=template_dir, static_url_path="/static")
 # Auto reload if a template file is changed
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-team_spread = None
-config = None
+team_spread = TeamSpread(
+    GSHEET_CREDENTIAL_FILE, 
+    GSHEET_SPREADSHEET_KEY,
+    GSHEET_WORKSHEET)
 
 def get_db():
     """Function for get db inside Flask app.
@@ -27,7 +42,7 @@ def get_db():
     """
     db = getattr(g, "_database", None)
     if db is None:
-        UserDB.connect(config["db"]["path"])
+        UserDB.connect(SQLITE_DB_PATH)
         db = UserDB
     return db
 
@@ -41,16 +56,12 @@ def send_js(path):
 
 @app.route("/")
 def index_get():
-    team_list_link = config["template"]["teamListLink"]
-    base_url = config["template"]["baseUrl"]
     return render_template("index.html", 
-        teamListLink=team_list_link,
-        baseUrl=base_url)
+        teamListLink=UI_TEMPLATE_TEAM_LIST_LINK,
+        baseUrl=UI_TEMPLATE_BASE_URL)
 
 @app.route("/confirm", methods=["POST"])
 def confirm_post():
-    team_list_link = config["template"]["teamListLink"]
-    base_url = config["template"]["baseUrl"]
     team_name = request.form.get("teamName").strip()
     r1_firstname = request.form.get("r1FirstName").strip()
     r1_lastname = request.form.get("r1LastName").strip()
@@ -79,13 +90,11 @@ def confirm_post():
             "firstname" : r4_firstname,
             "lastname" : r4_lastname,
         }, 
-        teamListLink=team_list_link,
-        baseUrl=base_url)
+        teamListLink=UI_TEMPLATE_TEAM_LIST_LINK,
+        baseUrl=UI_TEMPLATE_BASE_URL)
 
 @app.route("/result", methods=["POST"])
 def result_post():
-    team_list_link = config["template"]["teamListLink"]
-    base_url = config["template"]["baseUrl"]
     team_name = request.form.get("teamName").strip()
     r1_firstname = request.form.get("r1FirstName").strip()
     r1_lastname = request.form.get("r1LastName").strip()
@@ -162,14 +171,14 @@ def result_post():
                     "firstname" : r4_firstname,
                     "lastname" : r4_lastname,
                 }, 
-                teamListLink=team_list_link,
-                baseUrl=base_url)
+                teamListLink=UI_TEMPLATE_TEAM_LIST_LINK,
+                baseUrl=UI_TEMPLATE_BASE_URL)
         else:
             reason = "Something went wrong. Make sure you check the team before submitted."
             return render_template("result.html", 
                 success=success, reason=reason, 
-                teamListLink=team_list_link,
-                baseUrl=base_url)
+                teamListLink=UI_TEMPLATE_TEAM_LIST_LINK,
+                baseUrl=UI_TEMPLATE_BASE_URL)
 
 @app.route("/api/check", methods=["POST"])
 def api_check_post():
@@ -191,8 +200,7 @@ def api_check_post():
     with app.app_context():
         db = get_db()
         data = db.checkTeam(team_name, user1, user2, user3, user4)
-    resp = jsonify(data)
-    return resp
+    return jsonify(data)
 
 def load_json_config(config_path):
     config = None
@@ -201,22 +209,10 @@ def load_json_config(config_path):
     return config
 
 def main():
-    global team_spread, config
-    config = load_json_config(DEFAULT_CONFIG_PATH)
-    server_conf = config["server"]
-    spread_conf = config["spreadsheet"]
-
-    team_spread = TeamSpread(
-        spread_conf["credentials"], 
-        spread_conf["spreadsheetKey"],
-        spread_conf["worksheet"])
-
-    debug_flag = False
-    if "debug" in config["server"]:
-        debug_flag = config["server"]["debug"]
+    debug_flag = ENV_MODE != 'production'
     
     try:
-        app.run(host=server_conf["bindAddress"], port=server_conf["port"], debug=debug_flag)
+        app.run(host=BIND_ADDRESS, port=PORT, debug=debug_flag)
     finally:
         # Caught an interrupt or some error.
         UserDB.close()
